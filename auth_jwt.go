@@ -289,7 +289,7 @@ func (mw *GinJWTMiddleware) TokenGenerator(userID string) string {
 	claims := token.Claims.(jwt.MapClaims)
 
 	if mw.PayloadFunc != nil {
-		for key, value := range mw.PayloadFunc(userID) {
+		for key, value := range mw.PayloadFunc(gin.H{"userId": userID}) {
 			claims[key] = value
 		}
 	}
