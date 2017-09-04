@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"github.com/jamesclarke40/gin-jwt.git"
 	"gopkg.in/dgrijalva/jwt-go.v3"
 	"net/http"
 	"strings"
