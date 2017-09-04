@@ -224,9 +224,9 @@ func (mw *GinJWTMiddleware) LoginHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"token":      tokenString,
-		"expire":     expire.Format(time.RFC3339),
-		"additional": dets,
+		"token":  tokenString,
+		"expire": expire.Format(time.RFC3339),
+		"user":   dets,
 	})
 }
 
