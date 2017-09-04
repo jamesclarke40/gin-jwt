@@ -45,6 +45,8 @@ type GinJWTMiddleware struct {
 	// Optional, default to success.
 	Authorizator func(userID string, c *gin.Context) bool
 
+	Registrator func(firstname string, lastname string, username string, password string, c *gin.Context) (gin.H, bool)
+
 	// Callback function that will be called during login.
 	// Using this function it is possible to add additional payload data to the webtoken.
 	// The data is then made available during requests via c.Get("JWT_PAYLOAD").
@@ -79,6 +81,13 @@ type GinJWTMiddleware struct {
 type Login struct {
 	Username string `form:"username" json:"username" binding:"required"`
 	Password string `form:"password" json:"password" binding:"required"`
+}
+
+type Registration struct {
+	Firstname string `form:"fn" json:"fn" binding:"required"`
+	Lastname  string `form:"ln" json:"ln" binding:"required"`
+	Username  string `form:"un" json:"un" binding:"required"`
+	Password  string `form:"pw" json:"pw" binding:"required"`
 }
 
 // MiddlewareInit initialize jwt configs.
@@ -200,6 +209,61 @@ func (mw *GinJWTMiddleware) LoginHandler(c *gin.Context) {
 		mw.unauthorized(c, http.StatusUnauthorized, "Incorrect Username / Password")
 		return
 	}
+
+	// Create the token
+	token := jwt.New(jwt.GetSigningMethod(mw.SigningAlgorithm))
+	claims := token.Claims.(jwt.MapClaims)
+
+	if mw.PayloadFunc != nil {
+		for key, value := range mw.PayloadFunc(dets) {
+			claims[key] = value
+		}
+	}
+
+	expire := mw.TimeFunc().Add(mw.Timeout)
+
+	claims["exp"] = expire.Unix()
+	claims["orig_iat"] = mw.TimeFunc().Unix()
+
+	tokenString, err := token.SignedString(mw.Key)
+
+	if err != nil {
+		mw.unauthorized(c, http.StatusUnauthorized, "Create JWT Token faild")
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"token":  tokenString,
+		"expire": expire.Format(time.RFC3339),
+		"user":   dets,
+	})
+}
+
+func (mw *GinJWTMiddleware) RegHandler(c *gin.Context) {
+
+	// Initial middleware default setting.
+	mw.MiddlewareInit()
+
+	var regVals Registration
+
+	if c.ShouldBindWith(&regVals, binding.JSON) != nil {
+		mw.unauthorized(c, http.StatusBadRequest, "Missing parameters")
+		return
+	}
+
+	if mw.Authenticator == nil {
+		mw.unauthorized(c, http.StatusInternalServerError, "Missing define authenticator func")
+		return
+	}
+
+	_, ok := mw.Authenticator(regVals.Username, regVals.Password, c)
+
+	if ok {
+		mw.unauthorized(c, http.StatusInternalServerError, "User already exists")
+		return
+	}
+
+	dets, _ := mv.Registrator(regVals, c)
 
 	// Create the token
 	token := jwt.New(jwt.GetSigningMethod(mw.SigningAlgorithm))
