@@ -206,7 +206,7 @@ func (mw *GinJWTMiddleware) LoginHandler(c *gin.Context) {
 	claims := token.Claims.(jwt.MapClaims)
 
 	if mw.PayloadFunc != nil {
-		for key, value := range mw.PayloadFunc(loginVals.Username) {
+		for key, value := range mw.PayloadFunc(dets) {
 			claims[key] = value
 		}
 	}
