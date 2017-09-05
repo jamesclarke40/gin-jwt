@@ -268,7 +268,7 @@ func (mw *GinJWTMiddleware) RegHandler(c *gin.Context) {
 		return
 	}
 
-	dets = gin.H{}
+	dets := gin.H{}
 	//dets, _ := mv.registrator(regVals.Firstname, regVals.Lastname, regVals.Username, regVals.Password, c)
 
 	// Create the token
