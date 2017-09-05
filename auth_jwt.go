@@ -262,6 +262,10 @@ func (mw *GinJWTMiddleware) RegHandler(c *gin.Context) {
 		mw.unauthorized(c, http.StatusInternalServerError, "User already exists")
 		return
 	}
+	if mw.Registrator == nil {
+		mw.unauthorized(c, http.StatusInternalServerError, "Missing registrator func")
+		return
+	}
 
 	dets, _ := mv.Registrator(regVals.Firstname, regVals.Lastname, regVals.Username, regVals.Password, c)
 
