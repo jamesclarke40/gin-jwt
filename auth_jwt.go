@@ -131,7 +131,7 @@ func (mw *GinJWTMiddleware) MiddlewareInit() error {
 
 	if mw.IdentityHandler == nil {
 		mw.IdentityHandler = func(claims jwt.MapClaims) string {
-			return claims["id"].(string)
+			return claims["id"].(int64)
 		}
 	}
 
