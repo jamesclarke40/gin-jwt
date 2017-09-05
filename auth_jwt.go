@@ -2,7 +2,6 @@ package jwt
 
 import (
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"gopkg.in/dgrijalva/jwt-go.v3"
@@ -39,12 +38,12 @@ type GinJWTMiddleware struct {
 	// Callback function that should perform the authentication of the user based on userID and
 	// password. Must return true on success, false on failure. Required.
 	// Option return user id, if so, user id will be stored in Claim Array.
-	Authenticator func(username string, password string, c *gin.Context) (gin.H, bool)
+	Authenticator func(userID string, password string, c *gin.Context) (gin.H, bool)
 
 	// Callback function that should perform the authorization of the authenticated user. Called
 	// only after an authentication success. Must return true on success, false on failure.
 	// Optional, default to success.
-	Authorizator func(userID int64, c *gin.Context) bool
+	Authorizator func(userID string, c *gin.Context) bool
 
 	Registrator func(firstname string, lastname string, username string, password string, c *gin.Context) (gin.H, int)
 
@@ -60,7 +59,7 @@ type GinJWTMiddleware struct {
 	Unauthorized func(*gin.Context, int, string)
 
 	// Set the identity handler function
-	IdentityHandler func(jwt.MapClaims) int64
+	IdentityHandler func(jwt.MapClaims) string
 
 	// TokenLookup is a string in the form of "<source>:<name>" that is used
 	// to extract token from the request.
@@ -116,7 +115,7 @@ func (mw *GinJWTMiddleware) MiddlewareInit() error {
 	}
 
 	if mw.Authorizator == nil {
-		mw.Authorizator = func(userID int64, c *gin.Context) bool {
+		mw.Authorizator = func(userID string, c *gin.Context) bool {
 			return true
 		}
 	}
@@ -131,9 +130,8 @@ func (mw *GinJWTMiddleware) MiddlewareInit() error {
 	}
 
 	if mw.IdentityHandler == nil {
-		mw.IdentityHandler = func(claims jwt.MapClaims) int64 {
-			println("ID: ", fmt.Sprintf("%d", claims["id"]))
-			return claims["id"].(int64)
+		mw.IdentityHandler = func(claims jwt.MapClaims) string {
+			return claims["id"].(string)
 		}
 	}
 
@@ -351,7 +349,7 @@ func ExtractClaims(c *gin.Context) jwt.MapClaims {
 }
 
 // TokenGenerator handler that clients can use to get a jwt token.
-func (mw *GinJWTMiddleware) TokenGenerator(userID int64) string {
+func (mw *GinJWTMiddleware) TokenGenerator(userID string) string {
 	token := jwt.New(jwt.GetSigningMethod(mw.SigningAlgorithm))
 	claims := token.Claims.(jwt.MapClaims)
 
