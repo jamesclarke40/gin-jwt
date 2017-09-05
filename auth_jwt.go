@@ -45,7 +45,7 @@ type GinJWTMiddleware struct {
 	// Optional, default to success.
 	Authorizator func(userID string, c *gin.Context) bool
 
-	Registrator func(firstname string, lastname string, username string, password string, imageid string, c *gin.Context) (gin.H, bool)
+	Registrator func(firstname string, lastname string, username string, password string, c *gin.Context) (gin.H, bool)
 
 	// Callback function that will be called during login.
 	// Using this function it is possible to add additional payload data to the webtoken.
@@ -88,7 +88,6 @@ type Registration struct {
 	Lastname  string `form:"ln" json:"ln" binding:"required"`
 	Username  string `form:"un" json:"un" binding:"required"`
 	Password  string `form:"pw" json:"pw" binding:"required"`
-	ImageId   string `form:"im" json:"im" binding:"required"`
 }
 
 // MiddlewareInit initialize jwt configs.
@@ -268,7 +267,7 @@ func (mw *GinJWTMiddleware) RegHandler(c *gin.Context) {
 		return
 	}
 
-	dets, _ := mw.Registrator(regVals.Firstname, regVals.Lastname, regVals.Username, regVals.Password, regVals.ImageId, c)
+	dets, _ := mw.Registrator(regVals.Firstname, regVals.Lastname, regVals.Username, regVals.Password, c)
 
 	// Create the token
 	token := jwt.New(jwt.GetSigningMethod(mw.SigningAlgorithm))
