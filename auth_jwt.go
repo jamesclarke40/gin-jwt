@@ -45,7 +45,7 @@ type GinJWTMiddleware struct {
 	// Optional, default to success.
 	Authorizator func(userID string, c *gin.Context) bool
 
-	Registrator func(firstname string, lastname string, username string, password string, c *gin.Context) (gin.H, bool)
+	Registrator func(firstname string, lastname string, username string, password string, c *gin.Context) (gin.H, int)
 
 	// Callback function that will be called during login.
 	// Using this function it is possible to add additional payload data to the webtoken.
@@ -267,35 +267,40 @@ func (mw *GinJWTMiddleware) RegHandler(c *gin.Context) {
 		return
 	}
 
-	dets, _ := mw.Registrator(regVals.Firstname, regVals.Lastname, regVals.Username, regVals.Password, c)
+	dets, code := mw.Registrator(regVals.Firstname, regVals.Lastname, regVals.Username, regVals.Password, c)
 
-	// Create the token
-	token := jwt.New(jwt.GetSigningMethod(mw.SigningAlgorithm))
-	claims := token.Claims.(jwt.MapClaims)
-
-	if mw.PayloadFunc != nil {
-		for key, value := range mw.PayloadFunc(dets) {
-			claims[key] = value
-		}
-	}
-
-	expire := mw.TimeFunc().Add(mw.Timeout)
-
-	claims["exp"] = expire.Unix()
-	claims["orig_iat"] = mw.TimeFunc().Unix()
-
-	tokenString, err := token.SignedString(mw.Key)
-
-	if err != nil {
-		mw.unauthorized(c, http.StatusUnauthorized, "Create JWT Token faild")
+	if code == 203 {
+		mw.unauthorized(c, http.StatusConflict, "User already exists")
 		return
-	}
+	} else if code == 200 {
+		// Create the token
+		token := jwt.New(jwt.GetSigningMethod(mw.SigningAlgorithm))
+		claims := token.Claims.(jwt.MapClaims)
 
-	c.JSON(http.StatusOK, gin.H{
-		"token":  tokenString,
-		"expire": expire.Format(time.RFC3339),
-		"user":   dets,
-	})
+		if mw.PayloadFunc != nil {
+			for key, value := range mw.PayloadFunc(dets) {
+				claims[key] = value
+			}
+		}
+
+		expire := mw.TimeFunc().Add(mw.Timeout)
+
+		claims["exp"] = expire.Unix()
+		claims["orig_iat"] = mw.TimeFunc().Unix()
+
+		tokenString, err := token.SignedString(mw.Key)
+
+		if err != nil {
+			mw.unauthorized(c, http.StatusUnauthorized, "Create JWT Token faild")
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"token":  tokenString,
+			"expire": expire.Format(time.RFC3339),
+			"user":   dets,
+		})
+	}
 }
 
 // RefreshHandler can be used to refresh a token. The token still needs to be valid on refresh.
