@@ -251,17 +251,6 @@ func (mw *GinJWTMiddleware) RegHandler(c *gin.Context) {
 		return
 	}
 
-	if mw.Authenticator == nil {
-		mw.unauthorized(c, http.StatusInternalServerError, "Missing define authenticator func")
-		return
-	}
-
-	_, ok := mw.Authenticator(regVals.Username, regVals.Password, c)
-
-	if ok {
-		mw.unauthorized(c, http.StatusInternalServerError, "User already exists")
-		return
-	}
 	if mw.Registrator == nil {
 		mw.unauthorized(c, http.StatusInternalServerError, "Missing registrator func")
 		return
@@ -270,7 +259,7 @@ func (mw *GinJWTMiddleware) RegHandler(c *gin.Context) {
 	dets, code := mw.Registrator(regVals.Firstname, regVals.Lastname, regVals.Username, regVals.Password, c)
 
 	if code == 203 {
-		mw.unauthorized(c, http.StatusConflict, "User already exists")
+		mw.Unauthorized(c, 203, "User already exists")
 		return
 	} else if code == 200 {
 		// Create the token
@@ -300,6 +289,9 @@ func (mw *GinJWTMiddleware) RegHandler(c *gin.Context) {
 			"expire": expire.Format(time.RFC3339),
 			"user":   dets,
 		})
+	} else if code == 500 {
+		mw.Unauthorized(c, 500, "Server Error")
+		return
 	}
 }
 
