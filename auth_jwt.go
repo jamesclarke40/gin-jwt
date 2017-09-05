@@ -267,7 +267,7 @@ func (mw *GinJWTMiddleware) RegHandler(c *gin.Context) {
 		return
 	}
 
-	dets, _ := mv.Registrator(regVals.Firstname, regVals.Lastname, regVals.Username, regVals.Password, c)
+	dets, _ := mw.Registrator(regVals.Firstname, regVals.Lastname, regVals.Username, regVals.Password, c)
 
 	// Create the token
 	token := jwt.New(jwt.GetSigningMethod(mw.SigningAlgorithm))
