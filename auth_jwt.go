@@ -262,12 +262,14 @@ func (mw *GinJWTMiddleware) RegHandler(c *gin.Context) {
 		mw.unauthorized(c, http.StatusInternalServerError, "User already exists")
 		return
 	}
+
 	if mw.registrator == nil {
 		mw.unauthorized(c, http.StatusInternalServerError, "Missing registrator func")
 		return
 	}
 
-	dets, _ := mv.registrator(regVals.Firstname, regVals.Lastname, regVals.Username, regVals.Password, c)
+	dets = gin.H{}
+	//dets, _ := mv.registrator(regVals.Firstname, regVals.Lastname, regVals.Username, regVals.Password, c)
 
 	// Create the token
 	token := jwt.New(jwt.GetSigningMethod(mw.SigningAlgorithm))
