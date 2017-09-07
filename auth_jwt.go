@@ -43,7 +43,7 @@ type GinJWTMiddleware struct {
 	// Callback function that should perform the authorization of the authenticated user. Called
 	// only after an authentication success. Must return true on success, false on failure.
 	// Optional, default to success.
-	Authorizator func(userID string, c *gin.Context) bool
+	Authorizator func(userID int64, c *gin.Context) bool
 
 	Registrator func(firstname string, lastname string, username string, password string, c *gin.Context) (gin.H, int)
 
@@ -115,7 +115,7 @@ func (mw *GinJWTMiddleware) MiddlewareInit() error {
 	}
 
 	if mw.Authorizator == nil {
-		mw.Authorizator = func(userID string, c *gin.Context) bool {
+		mw.Authorizator = func(userID int64, c *gin.Context) bool {
 			return true
 		}
 	}
