@@ -2,7 +2,7 @@ package jwt
 
 import (
 	"errors"
-	"fmt"
+	//"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"gopkg.in/dgrijalva/jwt-go.v3"
