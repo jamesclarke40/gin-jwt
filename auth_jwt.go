@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"gopkg.in/dgrijalva/jwt-go.v3"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -132,7 +133,8 @@ func (mw *GinJWTMiddleware) MiddlewareInit() error {
 
 	if mw.IdentityHandler == nil {
 		mw.IdentityHandler = func(claims jwt.MapClaims) int64 {
-			return fmt.Sprintf("%v", claims["id"]).(int64)
+			id, _ := strconv.ParseInt(fmt.Sprintf("%v", claims["id"]), 10, 64)
+			return id
 		}
 	}
 
