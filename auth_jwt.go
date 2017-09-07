@@ -350,7 +350,7 @@ func ExtractClaims(c *gin.Context) jwt.MapClaims {
 }
 
 // TokenGenerator handler that clients can use to get a jwt token.
-func (mw *GinJWTMiddleware) TokenGenerator(userID string) string {
+func (mw *GinJWTMiddleware) TokenGenerator(userID int64) string {
 	token := jwt.New(jwt.GetSigningMethod(mw.SigningAlgorithm))
 	claims := token.Claims.(jwt.MapClaims)
 
