@@ -59,7 +59,7 @@ type GinJWTMiddleware struct {
 	Unauthorized func(*gin.Context, int, string)
 
 	// Set the identity handler function
-	IdentityHandler func(jwt.MapClaims) string
+	IdentityHandler func(jwt.MapClaims) int64
 
 	// TokenLookup is a string in the form of "<source>:<name>" that is used
 	// to extract token from the request.
