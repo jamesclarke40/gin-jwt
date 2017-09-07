@@ -2,12 +2,11 @@ package jwt
 
 import (
 	"errors"
-
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"gopkg.in/dgrijalva/jwt-go.v3"
 	"net/http"
-	"reflect"
 	"strings"
 	"time"
 )
@@ -133,7 +132,7 @@ func (mw *GinJWTMiddleware) MiddlewareInit() error {
 
 	if mw.IdentityHandler == nil {
 		mw.IdentityHandler = func(claims jwt.MapClaims) int64 {
-			println("TYPE: ", reflect.TypeOf(claims["id"]))
+			fmt.Sprintf("%T", claims["id"])
 			return claims["id"].(int64)
 		}
 	}
