@@ -142,8 +142,8 @@ func (mw *GinJWTMiddleware) MiddlewareInit() error {
 
 	if mw.GenerateNewToken == nil {
 		mw.GenerateNewToken = func(c *gin.Context) {
-			userid := ExtractClaims(c)["id"]
-			return TokenGenerator(userid)
+			userid := mw.ExtractClaims(c)["id"]
+			return mw.TokenGenerator(userid)
 		}
 	}
 
