@@ -372,6 +372,11 @@ func (mw *GinJWTMiddleware) TokenGenerator(userID int64) string {
 	return tokenString
 }
 
+func generateNewToken(c *gin.Context) string {
+	userid := ExtractClaims(c)["id"]
+	return jwt.TokenGenerator(userid)
+}
+
 func (mw *GinJWTMiddleware) jwtFromHeader(c *gin.Context, key string) (string, error) {
 	authHeader := c.Request.Header.Get(key)
 
