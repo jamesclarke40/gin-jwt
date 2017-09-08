@@ -355,7 +355,7 @@ func ExtractClaims(c *gin.Context) jwt.MapClaims {
 }
 
 // ExtractClaims help to extract the JWT claims
-func GenerateNewTokenWith(imageid string, c *gin.Context) string {
+func GenerateNewTokenWith(imageid string, c *gin.Context, mw *GinJWTMiddleware) string {
 	userID := ExtractClaims(c)["id"]
 	token := jwt.New(jwt.GetSigningMethod(mw.SigningAlgorithm))
 	claims := token.Claims.(jwt.MapClaims)
