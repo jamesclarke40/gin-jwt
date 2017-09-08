@@ -341,7 +341,7 @@ func (mw *GinJWTMiddleware) RefreshHandler(c *gin.Context) {
 	})
 }
 
-// ExtractClaims help to extract the JWT claims
+// ExtractClaims help to extract the JWT  claims
 func ExtractClaims(c *gin.Context) jwt.MapClaims {
 
 	if _, exists := c.Get("JWT_PAYLOAD"); !exists {
