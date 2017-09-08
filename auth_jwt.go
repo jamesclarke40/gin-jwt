@@ -63,6 +63,8 @@ type GinJWTMiddleware struct {
 	// Set the identity handler function
 	IdentityHandler func(jwt.MapClaims) int64
 
+	GenerateNewToken func(*gin.Context) string
+
 	// TokenLookup is a string in the form of "<source>:<name>" that is used
 	// to extract token from the request.
 	// Optional. Default value "header:Authorization".
@@ -135,6 +137,13 @@ func (mw *GinJWTMiddleware) MiddlewareInit() error {
 		mw.IdentityHandler = func(claims jwt.MapClaims) int64 {
 			id, _ := strconv.ParseInt(fmt.Sprintf("%v", claims["id"]), 10, 64)
 			return id
+		}
+	}
+
+	if mw.GenerateNewToken == nil {
+		mw.GenerateNewToken = func(c *gin.Context) {
+			userid := ExtractClaims(c)["id"]
+			return TokenGenerator(userid)
 		}
 	}
 
@@ -370,11 +379,6 @@ func (mw *GinJWTMiddleware) TokenGenerator(userID int64) string {
 	tokenString, _ := token.SignedString(mw.Key)
 
 	return tokenString
-}
-
-func generateNewToken(c *gin.Context) string {
-	userid := ExtractClaims(c)["id"]
-	return jwt.TokenGenerator(userid)
 }
 
 func (mw *GinJWTMiddleware) jwtFromHeader(c *gin.Context, key string) (string, error) {
