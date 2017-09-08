@@ -140,13 +140,6 @@ func (mw *GinJWTMiddleware) MiddlewareInit() error {
 		}
 	}
 
-	if mw.GenerateNewToken == nil {
-		mw.GenerateNewToken = func(c *gin.Context) string {
-			userid := ExtractClaims(c)["id"]
-			return mw.TokenGenerator(userid)
-		}
-	}
-
 	if mw.Realm == "" {
 		return errors.New("realm is required")
 	}
