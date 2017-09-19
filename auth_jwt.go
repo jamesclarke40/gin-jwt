@@ -308,8 +308,10 @@ func (mw *GinJWTMiddleware) RefreshHandler(c *gin.Context) {
 	claims := token.Claims.(jwt.MapClaims)
 
 	origIat := int64(claims["orig_iat"].(float64))
+	testTime := mw.TimeFunc().Add(-mw.MaxRefresh).Unix()
 
-	if origIat < mw.TimeFunc().Add(-mw.MaxRefresh).Unix() {
+	if origIat < testTime {
+		println("Could not generate refresh exp: ", origIat, " cutoff: ", testTime)
 		mw.unauthorized(c, http.StatusUnauthorized, "Token is expired.")
 		return
 	}
